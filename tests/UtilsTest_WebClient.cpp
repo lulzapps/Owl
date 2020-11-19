@@ -121,11 +121,11 @@ std::tuple<const char*, const char*> webtextData[]
         "https://www.york.ac.uk/teaching/cws/wws/webpage1.html",
         "A3E86B5B146DCA332F862A8096158E009BEBAB23"
     },
-    std::tuple<const char*, const char*>
-    {
-        "http://web.ics.purdue.edu/~gchopra/class/public/pages/webdesign/05_simple.html",
-        "9F871718676BD6175EDE3EECAD1A9D137E81E842"
-    }  
+//    std::tuple<const char*, const char*>
+//    {
+//        "http://web.ics.purdue.edu/~gchopra/class/public/pages/webdesign/05_simple.html",
+//        "9F871718676BD6175EDE3EECAD1A9D137E81E842"
+//    }
 };
 
 BOOST_DATA_TEST_CASE(webtextTest, data::make(webtextData), url, expectedhash)

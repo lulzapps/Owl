@@ -308,6 +308,9 @@ public:
 	void setSticky(bool var) { _bSticky = var; }
 	bool isSticky() const { return _bSticky; }
 
+    void setOpen(bool var) { _isOpen = var; }
+    bool open() const { return _isOpen;  }
+
     QList<std::shared_ptr<Post> >& getPosts() { return _posts; }
 
     void pushTag(const QString& tag) { _tags.push_back(tag); }
@@ -319,10 +322,11 @@ private:
     QString     _strAuthor;
     QString     _strPreviewText;
     TagList     _tags;
+    bool        _isOpen = true;
     bool        _bSticky;
     uint        _iReplyCount = 0;
 	
-    QList<std::shared_ptr<Post> > _posts;
+    QList<std::shared_ptr<Post> >   _posts;
     std::shared_ptr<Post>			_lastPost;
     std::shared_ptr<Post>			_firstUnread;
 };

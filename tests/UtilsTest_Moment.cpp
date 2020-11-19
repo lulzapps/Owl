@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(MomentTest)
     BOOST_CHECK_EQUAL(m.toString(fakenow), QStringLiteral("2 hours ago"));
 
     m.setDateTime(QDateTime(QDate(2016, 8, 22), QTime(05, 30)));
-    BOOST_CHECK_EQUAL(m.toString(fakenow), QStringLiteral("A day ago"));
+    BOOST_CHECK_EQUAL(m.toString(fakenow), QStringLiteral("a day ago"));
 
     m.setDateTime(QDateTime(QDate(2016, 8, 13), QTime(5, 29)));
     BOOST_CHECK_EQUAL(m.toString(fakenow), QStringLiteral("10 days ago"));

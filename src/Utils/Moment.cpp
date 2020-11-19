@@ -59,7 +59,7 @@ const QString Moment::toString(const QDateTime& now) const
     }
     else if (hoursTo <= 36)
     {
-        return QString("A day ago");
+        return QString("a day ago");
     }
 
     const auto daysTo = _dt.daysTo(now);

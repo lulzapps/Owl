@@ -1,12 +1,16 @@
 import QtQuick 2.7
 import QtQuick.Controls 1.4
+import QtQuick.Window 2.0
+import QtGraphicalEffects 1.0
 import reader.owl 1.0
+
 
 Item
 {
     id: rootItem
 
     property int smallTextSize: 11
+    property int osTextSizeModifier: 5
 
     signal stickyDisplayChanged
 
@@ -52,13 +56,14 @@ Item
         MenuItem
         {
             id: hideStickyMenuItem
-            text: "Hide Stickies"
+            text: qsTr("Hide Stickies")
 
             onTriggered:
             {
                 threadListPage.showStickies = !threadListPage.showStickies;
                 threadListPage.refreshThreadDisplay();
-                hideStickyMenuItem.text = threadListPage.showStickies ? "Hide Stickies" : "Show Stickies";
+                hideStickyMenuItem.text = threadListPage.showStickies
+                        ? qsTr("Hide Stickies") : qsTr("Show Stickies");
                 stickyDisplayChanged();
             }
         }
@@ -67,7 +72,7 @@ Item
 
         MenuItem
         {
-            text: "Copy URL"
+            text: qsTr("Copy URL")
             onTriggered:
             {
                 threadListPage.copyUrl(threadListView.currentIndex);
@@ -76,7 +81,7 @@ Item
 
         MenuItem
         {
-            text: "Open in Browser"
+            text: qsTr("Open in Browser")
             onTriggered:
             {
                 threadListPage.loadInBrowser(threadListView.currentIndex);
@@ -108,154 +113,177 @@ Item
             delegate: Item
             {
                 id: threadListDelegate
-                width: parent.width
-                height: authorText.height +
-                        titleText.height +
-                        (previewText.visible ? previewText.height + 5 : 0) +
-                        spacerRect.height +
-                        (lastAuthorRect.visible ? lastAuthorRect.height : 0)
 
-                visible: !model.modelData.sticky || threadListPage.showStickies
+                property int avatarRectWidth: 68
+                property int spacerRectHeight: 10
+                property int delegateSpacerHeight: 25
+
+                width: parent.width
+
+//                property int componentHeight:
+//                    authorText.height + authorText.anchors.topMargin + authorText.anchors.bottomMargin +
+//                    titleText.height + titleText.anchors.topMargin + titleText.anchors.bottomMargin +
+//                    (previewText.visible ? previewText.height + 5 : 0) +
+//                    spacerRect.height +
+//                    (lastAuthorRect.visible ? lastAuthorRect.height : 0)
+
+                //height: Math.max(158, componentHeight)
+                height: delegateSpacerHeight
+                        + titleText.height
+                        + authorText.height
+                        + previewTextItem.height
+                        + lastReplyItem.height
+
+                //visible: !model.modelData.sticky || threadListPage.showStickies
 
                 Rectangle
                 {
                     id: delegateFillRect
-                    width: parent.width
                     anchors.top: parent.top
-
-                    Image
-                    {
-                        id: lastAuthorImage
-                        visible: threadListSettings.read("threadlist.avatars.visible") && model.modelData.iconUrl.length > 0
-                        source: model.modelData.iconUrl
-                        width: 32
-                        height: 32
-                        anchors.top: parent.top
-                        anchors.topMargin: 2
-                        anchors.left: parent.left
-                        anchors.leftMargin: 2
-                        onStatusChanged:
-                        {
-                            if (lastAuthorImage.status == Image.Error)
-                            {
-                                lastAuthorImage.source = "qrc:/icons/no-avatar.png";
-                            }
-                        }
-                    }
-
-                    Text
-                    {
-                        id: authorText
-                        text: author //lastAuthor
-                        font.pointSize: 13; font.bold: unread
-                        color: "#326464"
-                        anchors.topMargin: 2
-                        anchors.left: lastAuthorImage.visible ? lastAuthorImage.right : parent.left
-                        anchors.leftMargin: 5
-                    }
-
-                    Image
-                    {
-                        id: stickyImage
-                        anchors.topMargin: 2
-                        anchors.top: parent.top
-                        anchors.right: model.modelData.replyCount > 0 ? replyCountRect.left : parent.right
-                        anchors.rightMargin: 5
-                        width: 16
-                        height: 16
-                        source: "/icons/pin.png"
-                        visible: model.modelData.sticky
-                    }
+                    width: parent.width
+                    color: "red"
+                    border.color: "black"
+                    border.width: 5
 
                     Rectangle
                     {
-                        id: replyCountRect
-                        visible: model.modelData.replyCount > 0
-                        anchors.right: parent.right
-                        anchors.rightMargin: 15
+                        id: avatarRect
                         anchors.top: parent.top
-                        anchors.topMargin: 2
-                        width: replyCountImage.width + replyCountObj.width
+                        anchors.left: parent.left
+                        height: threadListDelegate.height-spacerRect.height
+                        width: threadListDelegate.avatarRectWidth
+                        visible: threadListSettings.read("threadlist.avatars.visible") && model.modelData.iconUrl.length > 0
 
                         Image
                         {
-                            id: replyCountImage
-                            anchors.top: parent.top
-                            anchors.left: parent.left
-                            source: "/icons/replies.png"
-                            width: 16
-                            height: 16
+                            id: lastAuthorImage
+                            width: 52
+                            height: 52
+                            anchors.horizontalCenter: avatarRect.horizontalCenter
+                            anchors.top: avatarRect.top
+                            source: model.modelData.iconUrl
+                            fillMode: Image.PreserveAspectCrop
+
+                            onStatusChanged:
+                            {
+                                if (lastAuthorImage.status == Image.Error)
+                                {
+                                    lastAuthorImage.source = "qrc:/icons/no-avatar.png";
+                                }
+                            }
+
+                            property bool rounded: true
+                            property bool adapt: false
+
+                            layer.enabled: rounded
+                            layer.effect: OpacityMask
+                            {
+                                maskSource: Item
+                                {
+                                    width: lastAuthorImage.width
+                                    height: lastAuthorImage.height
+                                    Rectangle
+                                    {
+                                        anchors.centerIn: parent
+                                        width: lastAuthorImage.adapt ? lastAuthorImage.width : Math.min(lastAuthorImage.width, lastAuthorImage.height)
+                                        height: lastAuthorImage.adapt ? lastAuthorImage.height : width
+                                        radius: Math.min(width, height)
+                                    }
+                                }
+                            }
                         }
 
-                        Text
+                        Image
                         {
-                            id: replyCountObj
-                            anchors.left: replyCountImage.right
-                            anchors.leftMargin: 3
-                            text: model.modelData.replyCount
-                            font.pointSize: smallTextSize; font.bold: unread
-                            color: "#326464"
+                            id: stickyImage
+                            anchors.topMargin: 2
+                            anchors.top: parent.top
+                            anchors.right: avatarRect.right
+                            width: 24
+                            height: 24
+                            source: "/icons/pin.png"
+                            visible: model.modelData.sticky
                         }
-                    }
-
-                    Text
-                    {
-                        id: titleText
-                        anchors.top: authorText.bottom
-                        text: title
-                        font.pointSize: 13; font.bold: unread
-                        wrapMode: Text.WordWrap
-                        anchors.left: lastAuthorImage.visible ? authorText.left : parent.left
-                        anchors.leftMargin: lastAuthorImage.visible ? 0 : 5
-                        anchors.right: parent.right
-                        anchors.rightMargin: 5
-                    }
-
-                    Text
-                    {
-                        id: previewText
-                        text: model.modelData.previewText
-                        anchors.left: parent.left
-                        anchors.top: titleText.bottom
-                        width: parent.width - 10
-                        wrapMode: Text.WordWrap
-                        visible: threadListSettings.read("threadlist.previewtext.visible") && model.modelData.previewText.length > 0
-                        font.pointSize: 12; font.bold: unread
-                        color: "grey"
-                        anchors.leftMargin: 5
-                        anchors.rightMargin: 5
-                        anchors.topMargin: 5
                     }
 
                     Rectangle
                     {
-                        id: lastAuthorRect
-                        anchors.left: parent.left;
-                        anchors.top: previewText.visible ? previewText.bottom : titleText.bottom
-                        color: threadListView.currentIndex == index ? "#e4ebf1" : "#F7F9F9" // if this item is selected then #e4ebf1
-                        width: parent.width
-                        height: lastAuthorText.height
-                        visible: threadListSettings.read("threadlist.lastauthor.visible")
+                        id: contentRect
+                        anchors.top: parent.top
+                        anchors.left: avatarRect.right
+                        height: threadListDelegate.height-spacerRect.height
+                        width: threadListDelegate.width-avatarRect.width
 
                         Text
                         {
-                            id: lastAuthorText
-                            text: model.modelData.lastAuthor
-                            font.pointSize: smallTextSize;
-                            font.bold: unread
+                            id: titleText
                             anchors.top: parent.top
-                            anchors.leftMargin: 5
                             anchors.left: parent.left
+                            width: parent.width
+                            text: title
+                            font.pointSize: 11 + rootItem.osTextSizeModifier;
+                            font.bold: unread
+                            wrapMode: Text.Wrap
+                        }
+
+                        Text
+                        {
+                            id: authorText
+                            anchors.top: titleText.bottom
+                            text: author
+                            font.pointSize: 9 + rootItem.osTextSizeModifier;
+                            color: "grey"
+                            font.bold: true
+                        }
+
+                        Text
+                        {
+                            id: repliesText
+                            anchors.top: titleText.bottom
+                            anchors.left: authorText.right
+                            text: " " + String.fromCharCode(8226) + " "
+                                  + replyCount + " "
+                                  + (replyCount == 1 ? qsTr("reply") : qsTr("replies"))
+                            font.pointSize: 9 + rootItem.osTextSizeModifier;
+                            color: "grey"
+                        }
+
+//                        Text
+//                        {
+//                            id: dateText
+//                            anchors.top: titleText.bottom
+//                            anchors.left: repliesText.right
+//                            text: " " + String.fromCharCode(8226) + " " + model.modelData.dateText
+//                            font.pointSize: 9;
+//                            color: "grey"
+//                        }
+
+                        Text
+                        {
+                            id: previewTextItem
+                            anchors.top: authorText.bottom
+                            anchors.topMargin: 3
+                            anchors.left: parent.left
+                            width: parent.width
+                            text: previewText
+                            wrapMode: Text.Wrap
+                            font.pointSize: 10 + rootItem.osTextSizeModifier;
                             color: "grey"
                         }
 
                         Text
                         {
-                            id: dateTextObj
-                            text: model.modelData.dateText
-                            font.pointSize: smallTextSize;
-                            anchors.right: parent.right
-                            anchors.rightMargin: 5
+                            id: lastReplyItem
+                            anchors.top: previewTextItem.bottom
+                            anchors.left: parent.left
+                            anchors.topMargin: 3
+                            width: parent.width
+                            text: qsTr("<b>%1</b> replied %2")
+                                .arg(lastAuthor)
+                                .arg(model.modelData.dateText)
+                            wrapMode: Text.Wrap
+                            font.pointSize: 8 + rootItem.osTextSizeModifier;
+//                            font.bold: true
                             color: "grey"
                         }
                     }
@@ -263,11 +291,9 @@ Item
                     Rectangle
                     {
                         id: spacerRect
-                        height: 1
-                        width: parent.width
-                        anchors.top: parent.top
-                        color: "lightgrey"
-                        visible: index != 0
+                        height: threadListDelegate.spacerRectHeight
+                        width: delegateFillRect.width
+                        anchors.top: avatarRect.bottom
                     }
                 }
 

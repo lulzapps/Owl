@@ -9,3 +9,4 @@ build
 .vscode/
 *.txt.user.4.8-pre1
 bin2
+src/res/Owl.aps

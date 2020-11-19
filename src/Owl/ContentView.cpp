@@ -14,10 +14,13 @@
 
 #if defined(Q_OS_WIN)
     #define LOADINGVIEWFONTSIZE       14
+    #define FORUMNAMELABELHEIGHT      48
 #elif defined(Q_OS_MAC)
     #define LOADINGVIEWFONTSIZE       32
+    #define FORUMNAMELABELHEIGHT      48
 #else
     #define LOADINGVIEWFONTSIZE       32
+    #define FORUMNAMELABELHEIGHT      48
 #endif
 
 namespace owl
@@ -136,8 +139,8 @@ ThreadListContainer::ThreadListContainer(QWidget *parent)
     threadFont.setBold(true);
     _forumNameLbl->setFont(threadFont);
     _forumNameLbl->setWordWrap(false);
-    _forumNameLbl->setMinimumHeight(32);
-    _forumNameLbl->setMaximumHeight(32);
+    _forumNameLbl->setMinimumHeight(FORUMNAMELABELHEIGHT);
+    _forumNameLbl->setMaximumHeight(FORUMNAMELABELHEIGHT);
 
     _paginationWidget = new owl::PaginationWidget(this);
     QObject::connect(_paginationWidget, &PaginationWidget::doGotoPage,
@@ -202,9 +205,9 @@ ThreadListContainer::ThreadListContainer(QWidget *parent)
     topLayout->addItem(new QSpacerItem(1,0));
 
     // `hLine` separates the top pane from the bottom pane
-    QFrame* hLine = new QFrame(this);
-    hLine->setFrameShape(QFrame::HLine);
-    hLine->setFrameShadow(QFrame::Sunken);
+    //QFrame* hLine = new QFrame(this);
+    //hLine->setFrameShape(QFrame::HLine);
+    //hLine->setFrameShadow(QFrame::Sunken);
 
     _loadingView = new LoadingView(this);
 
@@ -220,7 +223,7 @@ ThreadListContainer::ThreadListContainer(QWidget *parent)
     rootLayout->addItem(new QSpacerItem(0,5));
     rootLayout->addLayout(topLayout);
     rootLayout->addItem(new QSpacerItem(0,5));
-    rootLayout->addWidget(hLine);
+    //rootLayout->addWidget(hLine);
     rootLayout->addWidget(_container);
 
     setLayout(rootLayout);

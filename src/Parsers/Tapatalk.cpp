@@ -988,6 +988,8 @@ owl::ThreadPtr Tapatalk4x::makeThreadObject( QVariant* variant )
 		newThread->setPreviewText(topicMap["short_content"].toString());
 		newThread->setHasUnread(topicMap["new_post"].toBool());
         newThread->setIconUrl(topicMap["icon_url"].toString());
+        newThread->setViews(topicMap["view_number"].toUInt());
+        newThread->setOpen(!topicMap["is_closed"].toBool());
 
 		// construct the last post
 		// TODO: need to figure out how to get the LAST postId in the thread
@@ -1012,13 +1014,26 @@ owl::ThreadPtr Tapatalk4x::makeThreadObject( QVariant* variant )
             }
         }
 
-		QDateTime dt = topicMap["last_reply_time"].toDateTime();
-		if (dt.isValid())
+		if (QDateTime dt = topicMap["last_reply_time"].toDateTime(); dt.isValid())
 		{
 			QString strTime = dt.toString("MM-dd-yyyy hh:mm AP");
 			post->setDatelineString(strTime);
 			post->setDateTime(dt);
 		}
+        else if (auto dt = topicMap["post_time"].toDateTime(); dt.isValid())
+        {
+            QString strTime = dt.toString("MM-dd-yyyy hh:mm AP");
+            post->setDatelineString(strTime);
+            post->setDateTime(dt);
+        }
+        else
+        {
+            auto epochTS = topicMap["timestamp"].toUInt();
+            auto dt2 = QDateTime::fromSecsSinceEpoch(epochTS);
+            QString strTime = dt2.toString("MM-dd-yyyy hh:mm AP");
+            post->setDatelineString(strTime);
+            post->setDateTime(dt2);
+        }
 
 		newThread->setLastPost(post);
 	}
